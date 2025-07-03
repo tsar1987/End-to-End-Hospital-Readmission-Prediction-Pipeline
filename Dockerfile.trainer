@@ -1,0 +1,31 @@
+# Step 1: Use the official Apache Spark image.
+# As you discovered, it now helpfully includes Python 3.10.
+FROM apache/spark:4.0.0-python3
+
+# Step 2: Set the working directory.
+# The 'spark' user exists in the image, but /app needs to be created.
+WORKDIR /app
+
+# Step 3: Copy requirements and project files.
+COPY requirements.txt .
+COPY ./src ./src
+COPY ./data ./data
+
+# Step 4: Install Python dependencies.
+# Note: We run this as root before switching users.
+USER root
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Step 5: Change ownership of the app directory to the spark user.
+# This allows the non-root user to write logs or output files if needed.
+RUN chown -R spark:spark /app
+
+# Step 6: Switch to the non-root 'spark' user for security.
+# This is a critical security best practice.
+USER spark
+
+# Step 7: Define the command to run the application.
+# This instruction gives us full control and bypasses the base image's
+# default startup script, fixing the "No such file or directory" error.
+# We are providing the exact command and its argument.
+ENTRYPOINT ["spark-submit", "src/train.py"]

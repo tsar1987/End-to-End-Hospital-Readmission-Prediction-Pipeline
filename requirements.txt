@@ -1,0 +1,11 @@
+# requirements.txt
+
+# Core data processing and Spark
+pyspark==4.0.0
+pandas==2.3.0
+numpy==2.2.6
+
+
+# For the web server
+fastapi
+uvicorn[standard]

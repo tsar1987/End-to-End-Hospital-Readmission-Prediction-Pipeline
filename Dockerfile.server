@@ -1,0 +1,33 @@
+# Dockerfile.server
+# This image is built to serve predictions using the FastAPI app.
+
+FROM python:3.10.10
+
+# The base image is Debian, so we use 'apt-get' to install packages.
+# 'apt-get update' refreshes the list of available packages.
+# 'default-jdk' is a good, standard package for Java.
+# '-y' automatically answers "yes" to any prompts during installation.
+RUN apt-get update && apt-get install -y openjdk-17-jdk
+
+# Explicitly tell the system where to find the Java installation.
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Create a non-root user for security
+RUN useradd -m appuser
+
+# Copy the application source AND the pre-trained model output
+COPY ./src ./src
+COPY ./output ./output
+RUN chown -R appuser:appuser /app
+
+# Switch to the non-root user
+USER appuser
+
+EXPOSE 80
+# The default command is to start the web server
+CMD ["uvicorn", "src.app.main:app", "--host", "0.0.0.0", "--port", "80"]
