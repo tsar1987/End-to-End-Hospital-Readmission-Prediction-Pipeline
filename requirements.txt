@@ -9,3 +9,6 @@ numpy==2.2.6
 # For the web server
 fastapi
 uvicorn[standard]
+
+# Add testing libraries
+pytest
