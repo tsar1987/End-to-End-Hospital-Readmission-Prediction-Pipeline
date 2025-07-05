@@ -25,6 +25,18 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
+          pip install awscli
+        
+      - name: Download model artifact from S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+          AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+          # Make sure this region matches your S3 bucket's region
+          AWS_DEFAULT_REGION: 'us-east-1'
+        run: |
+          echo "Downloading model..."
+          # Make sure this bucket name is correct!
+          aws s3 cp s3://spark-random-forest-model-07032025/spark_random_forest_model output/spark_random_forest_model --recursive
+          echo "Model downloaded successfully."
       - name: Run Pytest
         run: pytest
